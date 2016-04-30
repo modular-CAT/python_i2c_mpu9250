@@ -1,0 +1,12 @@
+# Auto-created build directories
+build/
+dist/
+
+#Setuptools distribution folder
+dist/
+
+# Python egg metadata generated from source by setuptools
+*.egg-info
+
+# Compiled python modules
+*.pyc
