@@ -3,9 +3,12 @@ python I2C MPU9250 (10DOF IMU)
 
 Python library for using the MPU9250. This chip includes a temperatures sensor, 3-axis gyro, 3-axis accelerometer, and slave device with 3-axis magnetometer.
 
-To install, download this library (git clone or click the download zip button) and place the unzipped contents somewhere handy on your BeagleBone Black or BeagleBone Green. Then cd to the directory of the library and execute the following command:
-
+To install, do the following:
+```
+git clone https://github.com/danrs/python_i2c_mpu9250 # or download as a zip and extract it somewhere handy
+cd python_i2c_mpu9250
 sudo python setup.py install
+```
 
 Ensure you have internet access so that you can install any required dependancies.
 
