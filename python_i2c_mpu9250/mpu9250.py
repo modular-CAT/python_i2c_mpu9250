@@ -110,47 +110,47 @@ class mpu9250():
         self.calibrate_gyro()
 
     def read_all(self):
-        try:
-            # Read gyro, temp and accelerometer data (all in same spot)
-            Data = bus.read_i2c_block_data(self.MPU9250_I2C_ADDR,self.SENSOR_BASE_ADDR)
-            self.accX = Data[0]<<8 | Data[1]
-            self.accY = Data[2]<<8 | Data[3]
-            self.accZ = Data[4]<<8 | Data[5]
+        """
+        Read all sensors (3x accelerometer, 3x gyro, 3x magnetometer, 1x temperature)
+        Throws an error on failure
+        """
+        # Read gyro, temp and accelerometer data (all in same spot)
+        Data = bus.read_i2c_block_data(self.MPU9250_I2C_ADDR,self.SENSOR_BASE_ADDR)
+        self.accX = Data[0]<<8 | Data[1]
+        self.accY = Data[2]<<8 | Data[3]
+        self.accZ = Data[4]<<8 | Data[5]
 
-            self.tempOut = Data[6]<<8 | Data[7]
+        self.tempOut = Data[6]<<8 | Data[7]
 
-            self.gyroX = Data[8]<<8 | Data[9] - self.gyrXoffs
-            self.gyroY = Data[10]<<8 | Data[11] - self.gyrYoffs
-            self.gyroZ = Data[12]<<8 | Data[13] - self.gyrZoffs
+        self.gyroX = Data[8]<<8 | Data[9] - self.gyrXoffs
+        self.gyroY = Data[10]<<8 | Data[11] - self.gyrYoffs
+        self.gyroZ = Data[12]<<8 | Data[13] - self.gyrZoffs
 
-            # Read magnetometer data - currently not working
-            bus.write_byte_data(self.MAG_I2C_ADDR, self.MAG_CONTROL_ADDR, self.MAG_CONT_MEASURE_MODE_1)
-            mag_status = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_STATUS_ADDR)
-            while mag_status[0] == 0:
-                mag_status = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_STATUS_ADDR) # poll until ready
-            Data = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_SENSOR_BASE_ADDR) # read data
-            self.magX = Data[0]<<8 | Data[1]
-            self.magY = Data[2]<<8 | Data[3]
-            self.magZ = Data[4]<<8 | Data[5]
-        except Exception as e:
-            print 'Error:',e
-            time.sleep(1)
+        # Read magnetometer data - currently not working
+        bus.write_byte_data(self.MAG_I2C_ADDR, self.MAG_CONTROL_ADDR, self.MAG_CONT_MEASURE_MODE_1)
+        mag_status = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_STATUS_ADDR)
+        while mag_status[0] == 0:
+            mag_status = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_STATUS_ADDR) # poll until ready
+        Data = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_SENSOR_BASE_ADDR) # read data
+        self.magX = Data[0]<<8 | Data[1]
+        self.magY = Data[2]<<8 | Data[3]
+        self.magZ = Data[4]<<8 | Data[5]
 
     def calibrate_gyro(self):
+        """
+        Calibrate the gyros before use by calculating bias (subtracted from later readings).
+        If this fails, it will throw an Error
+        """
         xSum = 0
         ySum = 0
         zSum = 0
         cnt = 500
-        try:
-            for i in range(cnt):
-                Data = bus.read_i2c_block_data(self.MPU9250_I2C_ADDR,self.GYRO_BASE_ADDR)
-                xSum = xSum + (Data[0]<<8 | Data[1])
-                ySum = xSum + (Data[2]<<8 | Data[3])
-                zSum = xSum + (Data[4]<<8 | Data[5])
-            self.gyrXoffs = xSum / cnt
-            self.gyrYoffs = ySum / cnt
-            self.gyrZoffs = zSum / cnt
-            print "gyrXoffs", "gyrYoffs", "gyrZoffs = ",self.gyrXoffs,self.gyrYoffs,self.gyrZoffs
-        except Exception as e:
-            print 'calibration error:',e
-            sys.exit(0)
+        for i in range(cnt):
+            Data = bus.read_i2c_block_data(self.MPU9250_I2C_ADDR,self.GYRO_BASE_ADDR)
+            xSum = xSum + (Data[0]<<8 | Data[1])
+            ySum = xSum + (Data[2]<<8 | Data[3])
+            zSum = xSum + (Data[4]<<8 | Data[5])
+        self.gyrXoffs = xSum / cnt
+        self.gyrYoffs = ySum / cnt
+        self.gyrZoffs = zSum / cnt
+        print "gyrXoffs", "gyrYoffs", "gyrZoffs = ",self.gyrXoffs,self.gyrYoffs,self.gyrZoffs
