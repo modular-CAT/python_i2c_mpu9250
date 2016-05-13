@@ -77,20 +77,20 @@ class mpu9250():
     MAG_CONTROL_ADDR = 0x0A
 
     # Sensor input variables
-    accX = 0
-    accY = 0
-    accZ = 0
-    gyroX = 0
-    gyroY = 0
-    gyroZ = 0
+    ax = 0
+    ay = 0
+    az = 0
+    gx = 0
+    gy = 0
+    gz = 0
     tempOut = 0
-    magX = 0
-    magY = 0
-    magZ = 0
+    mx = 0
+    my = 0
+    mz = 0
     # Gyro offsets TODO see if these can be moved onboard the sensor
-    gyrXoffs = 0
-    gyrYoffs = 0
-    gyrZoffs = 0
+    gxOffset = 0
+    gyOffset = 0
+    gzOffset = 0
 
 
     def __init__(self):
@@ -111,17 +111,17 @@ class mpu9250():
 
     def read_all(self):
         try:
-            # Read gyro, temp and accelerometer data (all in same spot)
+            # Read gyro, temp and aelerometer data (all in same spot)
             Data = bus.read_i2c_block_data(self.MPU9250_I2C_ADDR,self.SENSOR_BASE_ADDR)
-            self.accX = Data[0]<<8 | Data[1]
-            self.accY = Data[2]<<8 | Data[3]
-            self.accZ = Data[4]<<8 | Data[5]
+            self.ax = Data[0]<<8 | Data[1]
+            self.ay = Data[2]<<8 | Data[3]
+            self.az = Data[4]<<8 | Data[5]
 
             self.tempOut = Data[6]<<8 | Data[7]
 
-            self.gyroX = Data[8]<<8 | Data[9] - self.gyrXoffs
-            self.gyroY = Data[10]<<8 | Data[11] - self.gyrYoffs
-            self.gyroZ = Data[12]<<8 | Data[13] - self.gyrZoffs
+            self.gx = Data[8]<<8 | Data[9] - self.gxOffset
+            self.gy = Data[10]<<8 | Data[11] - self.gyOffset
+            self.gz = Data[12]<<8 | Data[13] - self.gzOffset
 
             # Read magnetometer data - currently not working
             bus.write_byte_data(self.MAG_I2C_ADDR, self.MAG_CONTROL_ADDR, self.MAG_CONT_MEASURE_MODE_1)
@@ -129,12 +129,15 @@ class mpu9250():
             while mag_status[0] == 0:
                 mag_status = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_STATUS_ADDR) # poll until ready
             Data = bus.read_i2c_block_data(self.MAG_I2C_ADDR, self.MAG_SENSOR_BASE_ADDR) # read data
-            self.magX = Data[0]<<8 | Data[1]
-            self.magY = Data[2]<<8 | Data[3]
-            self.magZ = Data[4]<<8 | Data[5]
+            self.mx = Data[0]<<8 | Data[1]
+            self.my = Data[2]<<8 | Data[3]
+            self.mz = Data[4]<<8 | Data[5]
+
+            return [self.ax,self.ay,self.az,self.gx,self.gy,self.gz,self.mx,self.my,self.mz]
+
         except Exception as e:
             print 'Error:',e
-            time.sleep(1)
+            return None
 
     def calibrate_gyro(self):
         xSum = 0
@@ -147,10 +150,10 @@ class mpu9250():
                 xSum = xSum + (Data[0]<<8 | Data[1])
                 ySum = xSum + (Data[2]<<8 | Data[3])
                 zSum = xSum + (Data[4]<<8 | Data[5])
-            self.gyrXoffs = xSum / cnt
-            self.gyrYoffs = ySum / cnt
-            self.gyrZoffs = zSum / cnt
-            print "gyrXoffs", "gyrYoffs", "gyrZoffs = ",self.gyrXoffs,self.gyrYoffs,self.gyrZoffs
+            self.gxOffset = xSum / cnt
+            self.gyOffset = ySum / cnt
+            self.gzOffset = zSum / cnt
+            print "gxOffset", "gyOffset", "gzOffset = ",self.gxOffset,self.gyOffset,self.gzOffset
         except Exception as e:
             print 'calibration error:',e
             sys.exit(0)
