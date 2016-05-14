@@ -76,24 +76,26 @@ class mpu9250():
     MAG_SENSOR_BASE_ADDR = 0x03
     MAG_CONTROL_ADDR = 0x0A
 
-    # Sensor input variables
-    ax = 0
-    ay = 0
-    az = 0
-    gx = 0
-    gy = 0
-    gz = 0
-    tempOut = 0
-    mx = 0
-    my = 0
-    mz = 0
-    # Gyro offsets TODO see if these can be moved onboard the sensor
-    gxOffset = 0
-    gyOffset = 0
-    gzOffset = 0
 
 
     def __init__(self):
+        # Sensor input variables
+        self.ax = 0
+        self.ay = 0
+        self.az = 0
+        self.gx = 0
+        self.gy = 0
+        self.gz = 0
+        self.tempOut = 0
+        self.mx = 0
+        self.my = 0
+        self.mz = 0
+        # Gyro offsets TODO see if these can be moved onboard the sensor
+        self.gxOffset = 0
+        self.gyOffset = 0
+        self.gzOffset = 0
+
+        # init the sensor
         bus.write_byte_data(self.MPU9250_I2C_ADDR, self.PWR_MGMT_1_ADDR,  self.PWR_WAKE)
         bus.write_byte_data(self.MPU9250_I2C_ADDR, self.CONF_ADDR, self.CONFIG_1KH_SAMPLE_RATE)
         bus.write_byte_data(self.MPU9250_I2C_ADDR, self.GYRO_CONF_ADDR, self.GYRO_FULLSCALE_500DPS)
@@ -108,6 +110,7 @@ class mpu9250():
         bus.write_byte_data(self.MPU9250_I2C_ADDR, self.I2C_SLAVE0_ADDR, self.I2C_SLAVE0_BYPASS_ENABLE)
 
         self.calibrate_gyro()
+
 
     def read_all(self):
         """
