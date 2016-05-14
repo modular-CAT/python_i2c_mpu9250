@@ -156,4 +156,4 @@ class mpu9250():
         self.gxOffset = xSum / cnt
         self.gyOffset = ySum / cnt
         self.gzOffset = zSum / cnt
-        print "gxOffset", "gyOffset", "gzOffset = ",self.gxOffset,self.gyOffset,self.gzOffset
+        return self.gxOffset,self.gyOffset,self.gzOffset
