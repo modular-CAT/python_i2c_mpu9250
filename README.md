@@ -7,7 +7,7 @@ Python library for using the MPU9250. This chip includes a temperatures sensor, 
 To install, execute the following commands:
 ```
 pip install smbus # required dependency
-git clone https://github.com/danrs/python_i2c_mpu9250 # or download as a zip and extract it somewhere handy
+git clone https://github.com/modular-CAT/python_i2c_mpu9250 # or download as a zip and extract it somewhere handy
 cd python_i2c_mpu9250
 sudo python setup.py install
 ```
